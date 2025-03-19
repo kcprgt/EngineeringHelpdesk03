@@ -1,0 +1,37 @@
+{% extends "base.html" %} 
+{% block title %} Ticket List {% endblock %}
+{% block content %}
+<div class="container">
+    <h2 class="pb-3">{% if title %} {{ title }} {% else %} Zgłoszenia {% endif %}</h2>
+
+    <table class="table">
+        <tr>
+            <th>ID</th>
+            <th>Tytuł</th>
+            <th>Data</th>
+            <th>Nr Jednostki</th>
+            <th>Dział</th>
+            <th>Priorytet</th>
+        </tr>
+        {% for ticket in tickets %}
+        <tr class="
+            {% if ticket.get_status_display == 'Zamknięty' %}table-secondary
+            {% elif ticket.assigned_user == user %}table-primary
+            {% else %} table-default
+            {% endif %}
+            ">
+            <td>{{ ticket.id }}</td>
+            <td><a href="/tickets/details/{{ ticket.id }}">{{ ticket.title }}</a></td>
+            <td>{{ ticket.date }}</td>
+            <td>{{ ticket.boat_number }}</td>
+            <td>
+                {% for sub_ticket in ticket.sub_tickets.all %}
+                <button type="button" class="btn btn-outline-primary" disabled>{{ sub_ticket.target_department.name }}</button>
+                {% endfor %}
+            </td>
+            <td>{{ ticket.priority.name }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

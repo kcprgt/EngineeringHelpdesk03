@@ -1,0 +1,15 @@
+.env
+db.sqlite3
+__pycache__/
+migrations/
+venv/
+*.log
+*.swp
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+EngrHelpdesk/settings.py
+db_draft.xlsx
+media/
+.vs/

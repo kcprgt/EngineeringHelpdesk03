@@ -1,0 +1,48 @@
+{% extends "base.html" %} 
+{% block title %} Add ticket {% endblock %}
+{% block content %}
+
+
+
+<div class="container">
+    <h2>Czy na pewno chcesz zamknąć to zgłoszenie?</h2>
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>ID</td>
+                <td>{{ ticket.id }}</td>
+            </tr>
+            <tr>
+                <td>Tytuł</td>
+                <td>{{ ticket.title }}</td>
+            </tr>
+            <tr>
+                <td>Numer Jednostki</td>
+                <td>{{ ticket.boat_number }}</td>
+            </tr>
+            <tr>
+                <td>Dział</td>
+                <td>{{ ticket.target_department.name }}</td>
+            </tr>
+            <tr>
+                <td>Autor</td>
+                <td>{{ ticket.author.get_full_name }}</td>
+            </tr>
+            <tr>
+                <td>Priorytet</td>
+                <td>{{ ticket.priority.name }}</td>
+            </tr>
+        </tbody>
+    </table>
+    {% if user == ticket.author  %}
+    <form method="POST" action="{% url 'delete' ticket.id %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            Powód zamknięcia zgłoszenia:
+            <input id="boat_number" name="closing_comment" type="text">
+        </div>
+        <button type="submit" class="btn btn-primary">Zamknij zgłoszenie</button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

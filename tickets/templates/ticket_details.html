@@ -1,0 +1,157 @@
+{% extends "base.html" %} 
+{% block title %} Szczegóły zgłoszenia {% endblock %}
+{% block content %}
+
+<div class="container p-5">
+    <div class="row pb-5">
+        <h3>Informacje ogólne</h3>
+        <table class="table">
+            <tbody>
+            <tr>
+                <td>ID</td>
+                <td>{{ ticket.id }}</td>
+            </tr>
+            <tr>
+                <td>Tytuł</td>
+                <td>{{ ticket.title }}</td>
+            </tr>
+            <tr>
+                <td>Numer Jednostki</td>
+                <td>{{ ticket.boat_number }}</td>
+            </tr>
+            <tr>
+                <td>Dotyczy Działu</td>
+                <td>
+                    {% for sub_ticket in ticket.sub_tickets.all %}
+                    <button type="button" class="btn btn-outline-primary" disabled>{{ sub_ticket.target_department.name }}</button>
+                    {% endfor %}
+                </td>
+                </tr>
+            <tr>
+                <td>Autor</td>
+                <td {% if ticket.author == user %}class="text-success" {% endif %}>
+                    {{ ticket.author.get_full_name }}
+                </td>
+            </tr>
+            <tr>
+                <td>Priorytet</td>
+                <td>{{ ticket.priority.name }}</td>
+            </tr>
+            <tr>
+                <td>Opis</td>
+                <td>{{ ticket.description }}</td>
+            </tr>
+        </table>
+    </div>
+    {% for sub_ticket in ticket.sub_tickets.all %}
+    <div class="row pb-5">
+        <!--Left Column-->
+        <div class="col-md-6">
+            <h3>Szczegóły {{ sub_ticket.target_department.name }}</h3>
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <td>Dotyczy rysunku</td>
+                        <td>
+                            <div>{{ sub_ticket.drawing.name }}</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Status</td>
+                        <td>{{ sub_ticket.get_status_display }}</td>
+                    </tr>
+                    <tr>
+
+                        {% for image in images %}
+                        <td>
+                            <img src="{{ image.image.url }}" alt="Ticket image" style="max-width: 300px; max-height: 300px;" />
+                        </td>
+                        {% endfor %}
+
+                    </tr>
+
+                </tbody>
+            </table>
+
+            <div class="btn-group" role="group">
+                {% if user == ticket.author and ticket.status != '9'  %}
+                <a href="/tickets/modify/{{ ticket.id }}" class="btn btn-primary active" role="button" aria-pressed="true">Edytuj</a>
+                <a href="/tickets/delete/{{ ticket.id }}" class="btn btn-secondary active" role="button" aria-pressed="true">Zamknij zgłoszenie</a>
+                {% endif %}
+
+                {% if ticket.status != '9' and user.is_team_lead %}
+                <form method="POST" action="{% url 'assign_user' ticket.id %}">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-primary dropdown-toggle" type="submit" data-bs-toggle="dropdown" aria-expanded="false">
+                            Przypisz zgłoszenie
+                        </button>
+
+                        {% csrf_token %}
+                        <ul class="dropdown-menu">
+                            {% for user in department_users %}
+                            <li>
+                                <button type="submit" class="dropdown-item" name="assigned_user" value="{{ user.id }}">
+                                    {{ user.get_full_name }}
+                                </button>
+                            </li>
+                            {% endfor %}
+                        </ul>
+
+                    </div>
+                </form>
+                {% endif %}
+                {% if user == ticket.assigned_user  %}
+                {% if ticket.status == '1'  %}
+                <a href="/tickets/modify/{{ ticket.id }}" class="btn btn-primary active" role="button" aria-pressed="true">Rozpocznij</a>
+                {% endif %}
+                {% if ticket.status == '2'  %}
+                <a href="/tickets/delete/{{ ticket.id }}" class="btn btn-secondary active" role="button" aria-pressed="true">Zamknij zgłoszenie</a>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        <!--Right Column-->
+        <div class="col-md-6">
+            <h3>Dyskusja</h3>
+
+            <!-- Comment List -->
+            <ul class="list-group">
+                {% for comment in sub_ticket.comments.all %}
+                <li class="list-group-item">
+                    <strong>{{ comment.author.get_full_name }}:</strong> {{ comment.content }}
+                    <br><small class="text-muted">{{ comment.date }}</small>
+                </li>
+                {% empty %}
+                <li class="list-group-item">Brak komentarzy</li>
+                {% endfor %}
+            </ul>
+            <p></p>
+
+            <!-- Comment Form -->
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="sub_ticket_id" value="{{ sub_ticket.id }}">
+                {{ form.content }}
+                <button type="submit" class="btn btn-primary mt-2">Wyślij</button>
+            </form>
+        </div>
+        <p></p>
+        {% if events %}
+        <div class="container">
+            <h4>Historia</h4>
+            <ul class="list-group">
+                {% for event in events %}
+                <li class="list-group-item">
+                    {{ event.new_status }}
+                    {{ event.assigned_user.get_full_name }}
+                    {{ event.date }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>  
+    {% endfor %}  
+</div>
+{% endblock %}

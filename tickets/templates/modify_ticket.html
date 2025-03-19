@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %} Add ticket {% endblock %}
+{% block content %}
+{% load custom_filters %}
+
+<div class="container">
+    <h2>Edytuj zgłoszenie</h2>
+    <form method="POST" enctype="multipart/form-data" action="/tickets/modify/{{ ticket.id }}">
+        {% csrf_token %}
+        <div class="mb-3 form-group">
+            <label for="title">Tytuł</label>
+            <input id="title" name="title" type="text" class="form-control" value="{{ ticket.title }}">
+        </div>
+        <div class="mb-3 form-group">
+            <label for="boat_number">Numer jednostki</label>
+            <input id="boat_number" name="boat_number" type="text" class="form-control" value="{{ ticket.boat_number }}">
+        </div>
+
+        <div class="mb-3 form-group">
+            <label for="description">Opis</label>
+            <textarea id="description" name="description" type="text" class="form-control" rows="3">{{ ticket.description }}</textarea>
+        </div>
+
+        <div class="dropdown form-group">
+            <label for="priority">Priorytet</label>
+            <select name="priority" id="priority" class="form-control">
+                {% for priority in priorities %}
+                {% if priority.id == ticket.priority.id %}
+                <option value="{{ priority.id }}" selected="selected">{{ priority.name }}</option>
+                {% else %}
+                <option value="{{ priority.id }}">{{ priority.name }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+
+        <p></p>
+
+        <h5>Dotyczy działu:</h5>
+        <div class="form-check">
+            {% for department in departments %}
+                {% if department in assigned_departments %}
+                <input checked type="checkbox" id="department_{{ department.id }}" name="departments[]" value="{{ department.id }}" class="form-check-input" onchange="toggleDrawingInput('{{ department.id }}')">
+                {% else %}
+                <input type="checkbox" id="department_{{ department.id }}" name="departments[]" value="{{ department.id }}" class="form-check-input" onchange="toggleDrawingInput('{{ department.id }}')">
+                {% endif %}
+                <label for="depatment_{{ department.id }}" class="form-check-label"> {{ department.name }}</label><br>
+            {% endfor %}
+        </div>
+
+        <p></p>
+
+        <div id="drawings-container" class="mb-3 form-group">
+            {% for department in departments %}
+            <div class="mb-3 form-group drawing-input"
+                 id="drawing_for_{{ department.id }}"
+                 {% if department in assigned_departments %}
+                 style="">
+                {% else %}
+                style="display:none;">
+                {% endif%}
+
+                <label for="drawing_{{ department.id }}">Rysunek {{ department.name }}</label>
+                <input id="drawing_{{ department.id }}" name="drawings_{{ department.id }}" type="text" placeholder="Numer rysunku" class="form-control" value="{{ department_drawings|get_item:department.id|default_if_none:'' }}" />
+            </div>
+            {% endfor %}
+        </div>
+
+        <p></p>
+
+
+        <!-- Existing Images Section -->
+        <h3>Pliki</h3>
+        <div class="mb-3">
+            {% for image in ticket.images.all %}
+            <div>
+                <img src="{{ image.image.url }}" alt="Ticket Image" width="200px">
+                <label>
+                    <input type="checkbox" name="delete_images" value="{{ image.id }}"> Usuń zdjęcie
+                </label>
+            </div>
+            {% empty %}
+            <p>Brak zdjęć</p>
+            {% endfor %}
+        </div>
+
+        <!-- New Image Upload Field -->
+        <div class="mb-3">
+            <label for="images">Dodaj nowe zdjęcia</label>
+            <input type="file" id="images" name="images" multiple>
+        </div>
+
+        <p></p>
+        <button class="btn btn-primary" type="submit">Ok</button>
+    </form>
+</div>
+
+<script>
+    // Function to toggle visibility of drawing inputs based on department checkbox
+    function toggleDrawingInput(departmentId) {
+        var checkbox = document.getElementById('department_' + departmentId);
+        var drawingInput = document.getElementById('drawing_for_' + departmentId);
+
+        if (checkbox.checked) {
+            // Show the drawing input when department is selected
+            drawingInput.style.display = 'block';
+        } else {
+            // Hide the drawing input when department is unselected
+            drawingInput.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}
