@@ -26,23 +26,13 @@ class Priority(models.Model):
 
 
 class Ticket(models.Model):
-    #STATUS_NAMES = [
-    #    ('0', 'Wysłano'),
-    #    ('1', 'Przypisany'),
-    #    ('2',  'W trakcie'),
-    #    ('9',  'Zamknięty'),
-    #    ]
-
     boat_number = models.CharField(max_length=10)
     date = models.DateField()
     title = models.CharField(max_length=200)
     description = models.CharField(max_length=1000)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    #target_departments = models.ManyToManyField(Department, blank=True)
     priority = models.ForeignKey(Priority, on_delete=models.CASCADE)
-    #status = models.CharField(max_length=1, choices=STATUS_NAMES, default='0')
     assigned_user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='tickets_assigned')
-    #drawings = models.ManyToManyField(Drawing, blank=True)
 
     def calculate_priority_points(self):
         points = (date.today() - self.date).days * self.priority.priority_weight + self.priority.priority_primary_points

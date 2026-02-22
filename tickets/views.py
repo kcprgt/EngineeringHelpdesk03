@@ -32,7 +32,7 @@ def received_tickets(request):
 @login_required
 def department_tickets(request):
     department = get_object_or_404(Department, id=request.user.department.id)
-    tickets = Ticket.objects.filter(target_departments=department)
+    tickets = Ticket.objects.filter(sub_tickets__target_department=department) #TOFIX
     sorted_tickets = sorted(tickets, key=lambda ticket: ticket.calculate_priority_points(), reverse = True)
     title = 'Zgłoszenia działu ' + department.name
     return render(request, 'tickets_list.html', {'tickets': sorted_tickets, 'title': title})
