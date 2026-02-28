@@ -62,7 +62,7 @@ def add_ticket(request):
             description=description, 
             date=date, 
             author=author, 
-            #priority=priority,
+            priority=priority,
         )
         
         departments = request.POST.getlist('departments[]')
