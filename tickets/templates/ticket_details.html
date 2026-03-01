@@ -41,6 +41,13 @@
                 <td>Opis</td>
                 <td>{{ ticket.description }}</td>
             </tr>
+            <tr>
+                <td>Status</td>
+                <td {% if ticket.status == 0 %} class="text-success"
+                    {% elif ticket.status == 9 %} class="text-danger" {% endif %}>
+                    {{ ticket.get_status_display }}
+                </td>
+            </tr>
         </table>
     </div>
     {% for sub_ticket in ticket.sub_tickets.all %}
