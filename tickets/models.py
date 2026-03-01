@@ -52,15 +52,20 @@ class Ticket(models.Model):
 
 
 class SubTicket(models.Model):
-    STATUS_NAMES = [
-        (0, 'Wysłano'),
-        (1, 'Przypisany'),
-        (2,  'W trakcie'),
-        (9,  'Zamknięty'),
+    STATUS_SENT = 0
+    STATUS_ASSIGNED = 1
+    STATUS_IN_PROGRESS = 2
+    STATUS_CLOSED = 9
+
+    STATUS_CHOICES = [
+        (STATUS_SENT, 'Wysłano'),
+        (STATUS_ASSIGNED, 'Przypisany'),
+        (STATUS_IN_PROGRESS,  'W trakcie'),
+        (STATUS_CLOSED,  'Zamknięty'),
         ]
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name='sub_tickets')
     target_department = models.ForeignKey(Department, on_delete=models.CASCADE)
-    status = models.CharField(max_length=1, choices=STATUS_NAMES, default=0)
+    status = models.IntegerField(choices=STATUS_CHOICES, default=STATUS_SENT)
     drawing = models.ForeignKey(Drawing, on_delete=models.CASCADE)
 
 
