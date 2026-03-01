@@ -26,6 +26,14 @@ class Priority(models.Model):
 
 
 class Ticket(models.Model):
+    STATUS_ACTIVE = 0
+    STATUS_CLOSED = 9
+
+    STATUS_CHOICES = [
+        (STATUS_ACTIVE, "Aktywny"),
+        (STATUS_CLOSED, "Zamknięty")
+    ]
+
     boat_number = models.CharField(max_length=10)
     date = models.DateField()
     title = models.CharField(max_length=200)
@@ -33,6 +41,7 @@ class Ticket(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     priority = models.ForeignKey(Priority, on_delete=models.CASCADE)
     assigned_user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='tickets_assigned')
+    status = models.IntegerField(choices=STATUS_CHOICES, default=STATUS_ACTIVE)
 
     def calculate_priority_points(self):
         points = (date.today() - self.date).days * self.priority.priority_weight + self.priority.priority_primary_points
