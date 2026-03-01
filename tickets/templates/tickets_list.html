@@ -12,6 +12,7 @@
             <th>Nr Jednostki</th>
             <th>Dział</th>
             <th>Priorytet</th>
+            <th>Status</th>
         </tr>
         {% for ticket in tickets %}
         <tr class="
@@ -30,6 +31,7 @@
                 {% endfor %}
             </td>
             <td>{{ ticket.priority.name }}</td>
+            <td>{{ ticket.get_status_display }}</td>
         </tr>
         {% endfor %}
     </table>
